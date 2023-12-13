@@ -1,7 +1,4 @@
 const INPUT: &str = include_str!("inputs/day05.txt");
-const _TEST: &str = include_str!("tests/day05.txt");
-const _TESTRESULT_A: &str = "35";
-const _TESTRESULT_B: &str = "46";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -89,6 +86,10 @@ fn read_conversion_tables(input: &[&str]) -> Vec<Vec<[u64; 3]>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day05.txt");
+    const _TESTRESULT_A: &str = "35";
+    const _TESTRESULT_B: &str = "46";
 
     #[test]
     fn test_a() {

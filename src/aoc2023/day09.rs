@@ -1,7 +1,4 @@
 const INPUT: &str = include_str!("inputs/day09.txt");
-const _TEST: &str = include_str!("tests/day09.txt");
-const _TESTRESULT_A: &str = "114";
-const _TESTRESULT_B: &str = "2";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -62,6 +59,10 @@ fn calc_prev(v: &[i32]) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day09.txt");
+    const _TESTRESULT_A: &str = "114";
+    const _TESTRESULT_B: &str = "2";
 
     #[test]
     fn test_a() {

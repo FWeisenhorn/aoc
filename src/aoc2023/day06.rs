@@ -1,7 +1,4 @@
 const INPUT: &str = include_str!("inputs/day06.txt");
-const _TEST: &str = include_str!("tests/day06.txt");
-const _TESTRESULT_A: &str = "288";
-const _TESTRESULT_B: &str = "71503";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -55,6 +52,10 @@ fn part_b(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day06.txt");
+    const _TESTRESULT_A: &str = "288";
+    const _TESTRESULT_B: &str = "71503";
 
     #[test]
     fn test_a() {

@@ -1,9 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
 const INPUT: &str = include_str!("inputs/day04.txt");
-const _TEST: &str = include_str!("tests/day04.txt");
-const _TESTRESULT_A: &str = "13";
-const _TESTRESULT_B: &str = "30";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -63,6 +60,10 @@ fn calc_wins_per_line(line: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day04.txt");
+    const _TESTRESULT_A: &str = "13";
+    const _TESTRESULT_B: &str = "30";
 
     #[test]
     fn test_a() {

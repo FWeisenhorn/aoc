@@ -1,10 +1,6 @@
 use std::collections::HashMap;
 
 const INPUT: &str = include_str!("inputs/day08.txt");
-const _TEST_A: &str = include_str!("tests/day08-a.txt");
-const _TEST_B: &str = include_str!("tests/day08-b.txt");
-const _TESTRESULT_A: &str = "6";
-const _TESTRESULT_B: &str = "6";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -100,6 +96,11 @@ const fn lcm(a: u64, b: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST_A: &str = include_str!("tests/day08-a.txt");
+    const _TEST_B: &str = include_str!("tests/day08-b.txt");
+    const _TESTRESULT_A: &str = "6";
+    const _TESTRESULT_B: &str = "6";
 
     #[test]
     fn test_a() {

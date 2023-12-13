@@ -1,9 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
 const INPUT: &str = include_str!("inputs/day03.txt");
-const _TEST: &str = include_str!("tests/day03.txt");
-const _TESTRESULT_A: &str = "4361";
-const _TESTRESULT_B: &str = "467835";
 
 type Pos = (usize, usize);
 
@@ -145,6 +142,10 @@ fn part_b(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day03.txt");
+    const _TESTRESULT_A: &str = "4361";
+    const _TESTRESULT_B: &str = "467835";
 
     #[test]
     fn test_a() {

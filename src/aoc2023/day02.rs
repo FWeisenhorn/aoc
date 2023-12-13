@@ -1,9 +1,6 @@
 use std::cmp::max;
 
 const INPUT: &str = include_str!("inputs/day02.txt");
-const _TEST: &str = include_str!("tests/day02.txt");
-const _TESTRESULT_A: &str = "8";
-const _TESTRESULT_B: &str = "2286";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -56,6 +53,10 @@ pub fn part_b(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day02.txt");
+    const _TESTRESULT_A: &str = "8";
+    const _TESTRESULT_B: &str = "2286";
 
     #[test]
     fn test_a() {

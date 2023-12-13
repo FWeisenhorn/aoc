@@ -3,9 +3,6 @@ use std::collections::HashMap;
 use std::marker::PhantomData;
 
 const INPUT: &str = include_str!("inputs/day07.txt");
-const _TEST: &str = include_str!("tests/day07.txt");
-const _TESTRESULT_A: &str = "6440";
-const _TESTRESULT_B: &str = "5905";
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -244,6 +241,10 @@ impl Hand<JokerDeck> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const _TEST: &str = include_str!("tests/day07.txt");
+    const _TESTRESULT_A: &str = "6440";
+    const _TESTRESULT_B: &str = "5905";
 
     #[test]
     fn test_a() {
