@@ -5,7 +5,7 @@ const INPUT: &str = include_str!("inputs/day11.txt");
 
 pub fn run() {
     println!("{}", part_a(INPUT));
-    println!("{}", part_b(INPUT, 1000000));
+    println!("{}", part_b(INPUT, 1_000_000));
 }
 
 fn part_a(input: &str) -> String {

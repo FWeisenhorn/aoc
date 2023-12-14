@@ -9,6 +9,9 @@ pub mod day08;
 pub mod day09;
 pub mod day10;
 pub mod day11;
+// pub mod day12;
+pub mod day13;
+// pub mod day14;
 
 pub fn run(day: u8) {
     match day {
@@ -23,6 +26,9 @@ pub fn run(day: u8) {
         9 => day09::run(),
         10 => day10::run(),
         11 => day11::run(),
+        // 12 => day12::run(),
+        13 => day13::run(),
+        // 14 => day14::run(),
         _ => println!("Invalid day!"),
     }
 }

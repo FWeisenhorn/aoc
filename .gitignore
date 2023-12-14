@@ -1,4 +1,5 @@
 /target
 /src/aoc2023/inputs
 /.vscode
+/.idea
 .DS_Store
