@@ -115,6 +115,7 @@ fn part_a(input: &str) -> String {
     (i / 2).to_string()
 }
 
+#[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
 fn part_b(input: &str) -> String {
     let input: HashMap<SignedPos, char> = input
         .lines()
