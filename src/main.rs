@@ -8,12 +8,12 @@
 
 mod aoc2023;
 
-const YEAR: u32 = 2023;
-const DAY: u32 = 10;
+const YEAR: u8 = 23;
+const DAY: u8 = 11;
 
 fn main() {
     match YEAR {
-        2023 => aoc2023::run(DAY),
+        23 => aoc2023::run(DAY),
         _ => println!("Invalid Year!"),
     };
 }

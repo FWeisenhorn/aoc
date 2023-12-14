@@ -310,14 +310,14 @@ fn part_b(input: &str) -> String {
     let mut t = if i > 0 { passed_rhs } else { passed_lhs };
     t.retain(|p| !visited.contains(p));
 
-    expand_queue(t, &input.into_keys().collect(), &visited)
+    expand_queue(t, &input.keys().collect(), &visited)
         .len()
         .to_string()
 }
 
 fn expand_queue(
     to_expand: HashSet<SignedPos>,
-    base_region: &HashSet<SignedPos>,
+    base_region: &HashSet<&SignedPos>,
     visited: &HashSet<SignedPos>,
 ) -> HashSet<SignedPos> {
     let mut to_expand: VecDeque<SignedPos> = to_expand.into_iter().collect();
