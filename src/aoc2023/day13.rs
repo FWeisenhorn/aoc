@@ -23,7 +23,7 @@ fn part_a(input: &str) -> String {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.0 <= mirror_pos && 2 * mirror_pos + 1 <= max_x + rock.0)
+                        (rock.0 <= mirror_pos && 2 * mirror_pos < max_x + rock.0)
                             || (rock.0 > mirror_pos && 2 * mirror_pos >= rock.0)
                     })
                     .all(|rock| rocks.contains(&(2 * mirror_pos + 1 - rock.0, rock.1)))
@@ -36,7 +36,7 @@ fn part_a(input: &str) -> String {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.1 <= mirror_pos && 2 * mirror_pos + 1 <= max_y + rock.1)
+                        (rock.1 <= mirror_pos && 2 * mirror_pos < max_y + rock.1)
                             || (rock.1 > mirror_pos && 2 * mirror_pos >= rock.1)
                     })
                     .all(|rock| rocks.contains(&(rock.0, 2 * mirror_pos + 1 - rock.1)))
@@ -65,10 +65,12 @@ fn part_b(input: &str) -> String {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.0 <= mirror_pos && 2 * mirror_pos + 1 <= max_x + rock.0)
+                        (rock.0 <= mirror_pos && 2 * mirror_pos < max_x + rock.0)
                             || (rock.0 > mirror_pos && 2 * mirror_pos >= rock.0)
                     })
-                    .all(|rock| rocks.contains(&(2 * mirror_pos + 1 - rock.0, rock.1)))
+                    .filter(|rock| !rocks.contains(&(2 * mirror_pos + 1 - rock.0, rock.1)))
+                    .count()
+                    == 1
                 {
                     i = mirror_pos * 100;
                 }
@@ -78,10 +80,12 @@ fn part_b(input: &str) -> String {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.1 <= mirror_pos && 2 * mirror_pos + 1 <= max_y + rock.1)
+                        (rock.1 <= mirror_pos && 2 * mirror_pos < max_y + rock.1)
                             || (rock.1 > mirror_pos && 2 * mirror_pos >= rock.1)
                     })
-                    .all(|rock| rocks.contains(&(rock.0, 2 * mirror_pos + 1 - rock.1)))
+                    .filter(|rock| !rocks.contains(&(rock.0, 2 * mirror_pos + 1 - rock.1)))
+                    .count()
+                    == 1
                 {
                     i = mirror_pos;
                 }
