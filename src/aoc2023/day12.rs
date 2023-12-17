@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 const INPUT: &str = include_str!("inputs/day12.txt");
 
@@ -72,7 +72,7 @@ fn possible_ways(
         (b'?', Some(x)) => {
             let mut ans = possible_ways(cache, &s[1..], within.map(|x| x + 1), remaining);
             if x == remaining[0] {
-                ans += possible_ways(cache, &s[1..], None, &remaining[1..])
+                ans += possible_ways(cache, &s[1..], None, &remaining[1..]);
             }
             ans
         }
