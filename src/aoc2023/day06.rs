@@ -54,16 +54,14 @@ mod tests {
     use super::*;
 
     const _TEST: &str = include_str!("tests/day06.txt");
-    const _TESTRESULT_A: &str = "288";
-    const _TESTRESULT_B: &str = "71503";
 
     #[test]
     fn test_a() {
-        assert_eq!(part_a(_TEST), _TESTRESULT_A);
+        assert_eq!(part_a(_TEST), "288");
     }
 
     #[test]
     fn test_b() {
-        assert_eq!(part_b(_TEST), _TESTRESULT_B);
+        assert_eq!(part_b(_TEST), "71503");
     }
 }

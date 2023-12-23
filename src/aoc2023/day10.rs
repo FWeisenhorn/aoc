@@ -347,27 +347,23 @@ fn expand_queue(
 mod tests {
     const _TEST_A1: &str = include_str!("tests/day10-a1.txt");
     const _TEST_A2: &str = include_str!("tests/day10-a2.txt");
-    const _TESTRESULT_A1: &str = "4";
-    const _TESTRESULT_A2: &str = "8";
+
     const _TEST_B1: &str = include_str!("tests/day10-b1.txt");
     const _TEST_B2: &str = include_str!("tests/day10-b2.txt");
     const _TEST_B3: &str = include_str!("tests/day10-b3.txt");
-    const _TESTRESULT_B1: &str = "4";
-    const _TESTRESULT_B2: &str = "8";
-    const _TESTRESULT_B3: &str = "10";
 
     use super::*;
 
     #[test]
     fn test_a() {
-        assert_eq!(part_a(_TEST_A1), _TESTRESULT_A1);
-        assert_eq!(part_a(_TEST_A2), _TESTRESULT_A2);
+        assert_eq!(part_a(_TEST_A1), "4");
+        assert_eq!(part_a(_TEST_A2), "8");
     }
 
     #[test]
     fn test_b() {
-        assert_eq!(part_b(_TEST_B1), _TESTRESULT_B1);
-        assert_eq!(part_b(_TEST_B2), _TESTRESULT_B2);
-        assert_eq!(part_b(_TEST_B3), _TESTRESULT_B3);
+        assert_eq!(part_b(_TEST_B1), "4");
+        assert_eq!(part_b(_TEST_B2), "8");
+        assert_eq!(part_b(_TEST_B3), "10");
     }
 }

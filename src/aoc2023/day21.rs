@@ -38,7 +38,7 @@ fn part_a(input: &str, n_steps: usize) -> String {
     possible_pos.len().to_string()
 }
 
-fn part_b(input: &str, n_steps: usize) -> String {
+fn part_b(_input: &str, _n_steps: usize) -> String {
     String::new()
 }
 

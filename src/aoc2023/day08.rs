@@ -99,16 +99,14 @@ mod tests {
 
     const _TEST_A: &str = include_str!("tests/day08-a.txt");
     const _TEST_B: &str = include_str!("tests/day08-b.txt");
-    const _TESTRESULT_A: &str = "6";
-    const _TESTRESULT_B: &str = "6";
 
     #[test]
     fn test_a() {
-        assert_eq!(part_a(_TEST_A), _TESTRESULT_A);
+        assert_eq!(part_a(_TEST_A), "6");
     }
 
     #[test]
     fn test_b() {
-        assert_eq!(part_b(_TEST_B), _TESTRESULT_B);
+        assert_eq!(part_b(_TEST_B), "6");
     }
 }

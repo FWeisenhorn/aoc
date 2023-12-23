@@ -4,7 +4,7 @@ const INPUT: &str = include_str!("inputs/day20.txt");
 
 pub fn run() {
     println!("{}", part_a(INPUT));
-    // println!("{}", part_b(INPUT));
+    println!("{}", part_b(INPUT));
 }
 
 fn part_a(input: &str) -> String {
@@ -40,7 +40,7 @@ fn part_a(input: &str) -> String {
     (lows * highs).to_string()
 }
 
-fn part_b(input: &str) -> String {
+fn part_b(_input: &str) -> String {
     String::new()
 }
 
@@ -167,16 +167,14 @@ mod tests {
 
     const _TEST_A1: &str = include_str!("tests/day20-a1.txt");
     const _TEST_A2: &str = include_str!("tests/day20-a2.txt");
-    const _TESTRESULT_A1: &str = "32000000";
-    const _TESTRESULT_A2: &str = "11687500";
 
     #[test]
     fn test_a1() {
-        assert_eq!(part_a(_TEST_A1), _TESTRESULT_A1);
+        assert_eq!(part_a(_TEST_A1), "32000000");
     }
 
     #[test]
     fn test_a2() {
-        assert_eq!(part_a(_TEST_A2), _TESTRESULT_A2);
+        assert_eq!(part_a(_TEST_A2), "11687500");
     }
 }
