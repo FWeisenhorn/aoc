@@ -45,4 +45,8 @@ impl Pos {
             _ => None,
         }
     }
+
+    pub const fn distance(&self, other: &Self) -> usize {
+        self.x.abs_diff(other.x) + self.y.abs_diff(other.y)
+    }
 }

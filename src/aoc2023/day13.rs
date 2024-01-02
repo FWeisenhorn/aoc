@@ -1,6 +1,5 @@
+use crate::utils::pos::Pos;
 use std::collections::HashSet;
-
-type Pos = (usize, usize);
 
 const INPUT: &str = include_str!("inputs/day13.txt");
 
@@ -12,23 +11,27 @@ pub fn run() {
 fn part_a(input: &str) -> String {
     input
         .split("\n\n")
-        .map(|s| {
+        .fold(0, |acc, s| {
             let rocks = get_rocks_from_input(s);
 
-            let max_x: usize = rocks.iter().max_by_key(|(x, _)| x).unwrap().0;
-            let max_y: usize = rocks.iter().max_by_key(|(_, x)| x).unwrap().1;
-            let mut i = 0;
+            let max_x: usize = rocks.iter().map(|p| p.x).max().unwrap();
+            let max_y: usize = rocks.iter().map(|p| p.y).max().unwrap();
 
             for mirror_pos in 1..max_x {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.0 <= mirror_pos && 2 * mirror_pos < max_x + rock.0)
-                            || (rock.0 > mirror_pos && 2 * mirror_pos >= rock.0)
+                        (rock.x <= mirror_pos && 2 * mirror_pos < max_x + rock.x)
+                            || (rock.x > mirror_pos && 2 * mirror_pos >= rock.x)
                     })
-                    .all(|rock| rocks.contains(&(2 * mirror_pos + 1 - rock.0, rock.1)))
+                    .all(|rock| {
+                        rocks.contains(&Pos {
+                            x: 2 * mirror_pos + 1 - rock.x,
+                            y: rock.y,
+                        })
+                    })
                 {
-                    i = mirror_pos * 100;
+                    return acc + mirror_pos * 100;
                 }
             }
 
@@ -36,43 +39,51 @@ fn part_a(input: &str) -> String {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.1 <= mirror_pos && 2 * mirror_pos < max_y + rock.1)
-                            || (rock.1 > mirror_pos && 2 * mirror_pos >= rock.1)
+                        (rock.y <= mirror_pos && 2 * mirror_pos < max_y + rock.y)
+                            || (rock.y > mirror_pos && 2 * mirror_pos >= rock.y)
                     })
-                    .all(|rock| rocks.contains(&(rock.0, 2 * mirror_pos + 1 - rock.1)))
+                    .all(|rock| {
+                        rocks.contains(&Pos {
+                            x: rock.x,
+                            y: 2 * mirror_pos + 1 - rock.y,
+                        })
+                    })
                 {
-                    i = mirror_pos;
+                    return acc + mirror_pos;
                 }
             }
 
-            i
+            unreachable!()
         })
-        .sum::<usize>()
         .to_string()
 }
 
 fn part_b(input: &str) -> String {
     input
         .split("\n\n")
-        .map(|s| {
+        .fold(0, |acc, s| {
             let rocks = get_rocks_from_input(s);
 
-            let max_x: usize = rocks.iter().max_by_key(|(x, _)| x).unwrap().0;
-            let max_y: usize = rocks.iter().max_by_key(|(_, x)| x).unwrap().1;
-            let mut i = 0;
+            let max_x: usize = rocks.iter().map(|p| p.x).max().unwrap();
+            let max_y: usize = rocks.iter().map(|p| p.y).max().unwrap();
 
             for mirror_pos in 1..max_x {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.0 <= mirror_pos && 2 * mirror_pos < max_x + rock.0)
-                            || (rock.0 > mirror_pos && 2 * mirror_pos >= rock.0)
+                        (rock.x <= mirror_pos && 2 * mirror_pos < max_x + rock.x)
+                            || (rock.x > mirror_pos && 2 * mirror_pos >= rock.x)
                     })
-                    .filter(|rock| !rocks.contains(&(2 * mirror_pos + 1 - rock.0, rock.1)))
+                    .filter(|rock| {
+                        !rocks.contains(&Pos {
+                            x: 2 * mirror_pos + 1 - rock.x,
+                            y: rock.y,
+                        })
+                    })
                     .count()
                     == 1
                 {
-                    i = mirror_pos * 100;
+                    return acc + mirror_pos * 100;
                 }
             }
 
@@ -80,20 +91,24 @@ fn part_b(input: &str) -> String {
                 if rocks
                     .iter()
                     .filter(|rock| {
-                        (rock.1 <= mirror_pos && 2 * mirror_pos < max_y + rock.1)
-                            || (rock.1 > mirror_pos && 2 * mirror_pos >= rock.1)
+                        (rock.y <= mirror_pos && 2 * mirror_pos < max_y + rock.y)
+                            || (rock.y > mirror_pos && 2 * mirror_pos >= rock.y)
                     })
-                    .filter(|rock| !rocks.contains(&(rock.0, 2 * mirror_pos + 1 - rock.1)))
+                    .filter(|rock| {
+                        !rocks.contains(&Pos {
+                            x: rock.x,
+                            y: 2 * mirror_pos + 1 - rock.y,
+                        })
+                    })
                     .count()
                     == 1
                 {
-                    i = mirror_pos;
+                    return acc + mirror_pos;
                 }
             }
 
-            i
+            unreachable!()
         })
-        .sum::<usize>()
         .to_string()
 }
 
@@ -102,7 +117,7 @@ fn get_rocks_from_input(input: &str) -> HashSet<Pos> {
     input.lines().enumerate().for_each(|(i, line)| {
         line.chars().enumerate().for_each(|(j, c)| {
             if c == '#' {
-                rocks.insert((i + 1, j + 1));
+                rocks.insert(Pos { x: i + 1, y: j + 1 });
             };
         });
     });

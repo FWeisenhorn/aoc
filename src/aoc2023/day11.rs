@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-type Pos = (usize, usize);
+use crate::utils::pos::Pos;
 
 const INPUT: &str = include_str!("inputs/day11.txt");
 
@@ -13,11 +12,11 @@ fn part_a(input: &str) -> String {
 }
 
 fn part_b(input: &str, expansion: usize) -> String {
-    let mut galaxies = HashSet::<Pos>::new();
+    let mut galaxies: Vec<Pos> = vec![];
     input.lines().enumerate().for_each(|(i, line)| {
         line.chars().enumerate().for_each(|(j, c)| {
             if c == '#' {
-                galaxies.insert((i, j));
+                galaxies.push(Pos { x: i, y: j });
             };
         });
     });
@@ -25,47 +24,33 @@ fn part_b(input: &str, expansion: usize) -> String {
     let max_x = input.lines().count();
     let max_y = input.lines().next().unwrap().chars().count();
 
-    for x in (0..max_x).rev() {
-        let empty_row = galaxies.iter().all(|(a, _)| a != &x);
-
-        if empty_row {
-            galaxies = galaxies
-                .drain()
-                .map(|(a, b)| {
-                    if a > x {
-                        (a + expansion - 1, b)
-                    } else {
-                        (a, b)
-                    }
-                })
-                .collect();
+    for x_ in (0..max_x).rev() {
+        if !galaxies.iter().any(|&p| p.x == x_) {
+            galaxies.iter_mut().filter(|p| p.x > x_).for_each(|p| {
+                p.x += expansion - 1;
+            });
         }
     }
 
-    for y in (0..max_y).rev() {
-        let empty_col = galaxies.iter().all(|(_, b)| b != &y);
-
-        if empty_col {
-            galaxies = galaxies
-                .drain()
-                .map(|(a, b)| {
-                    if b > y {
-                        (a, b + expansion - 1)
-                    } else {
-                        (a, b)
-                    }
-                })
-                .collect();
+    for y_ in (0..max_y).rev() {
+        if !galaxies.iter().any(|&p| p.y == y_) {
+            galaxies.iter_mut().filter(|p| p.y > y_).for_each(|p| {
+                p.y += expansion - 1;
+            });
         }
     }
 
-    (galaxies.iter().fold(0, |acc, gal| {
-        acc + galaxies
-            .iter()
-            .map(|other| gal.0.abs_diff(other.0) + gal.1.abs_diff(other.1))
-            .sum::<usize>()
-    }) / 2)
-        .to_string()
+    (galaxies
+        .iter()
+        .map(|gal| {
+            galaxies
+                .iter()
+                .map(|other| gal.distance(other))
+                .sum::<usize>()
+        })
+        .sum::<usize>()
+        / 2)
+    .to_string()
 }
 
 #[cfg(test)]

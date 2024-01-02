@@ -41,7 +41,7 @@ fn vec_diff(v: &[i32]) -> Vec<i32> {
 }
 
 fn calc_next(v: &[i32]) -> i32 {
-    if vec_diff(v).iter().all(|x| *x == 0) {
+    if vec_diff(v).iter().all(|&x| x == 0) {
         *v.last().unwrap()
     } else {
         *v.last().unwrap() + calc_next(&vec_diff(v))
@@ -49,7 +49,7 @@ fn calc_next(v: &[i32]) -> i32 {
 }
 
 fn calc_prev(v: &[i32]) -> i32 {
-    if vec_diff(v).iter().all(|x| *x == 0) {
+    if vec_diff(v).iter().all(|&x| x == 0) {
         *v.first().unwrap()
     } else {
         *v.first().unwrap() - calc_prev(&vec_diff(v))

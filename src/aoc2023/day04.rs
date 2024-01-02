@@ -42,16 +42,15 @@ fn part_b(input: &str) -> String {
 }
 
 fn calc_wins_per_line(line: &str) -> usize {
-    let x = line.split_at(line.find(':').unwrap() + 2);
-    let x = x.1.split_at(x.1.find('|').unwrap());
+    let x = line.split_once(':').unwrap();
+    let x = x.1.split_once('|').unwrap();
 
     let winning_numbers: HashSet<u32> =
         x.0.split_whitespace()
             .map(|x| x.parse::<u32>().unwrap())
             .collect();
 
-    x.1[2..]
-        .split_whitespace()
+    x.1.split_whitespace()
         .map(|x| x.parse::<u32>().unwrap())
         .filter(|x| winning_numbers.contains(x))
         .count()
