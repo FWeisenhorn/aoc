@@ -13,8 +13,16 @@ mod day12;
 mod day13;
 mod day14;
 mod day15;
-
+mod day16;
 mod day17;
+// mod day18;
+mod day19;
+mod day20;
+mod day21;
+mod day22;
+// mod day23;
+// mod day24;
+// mod day25;
 
 pub fn run(day: u8) {
     match day {
@@ -33,8 +41,16 @@ pub fn run(day: u8) {
         13 => day13::run(),
         14 => day14::run(),
         15 => day15::run(),
-        // 16 => day16::run(),
+        16 => day16::run(),
         17 => day17::run(),
+        // 18 => day18::run(),
+        19 => day19::run(),
+        20 => day20::run(),
+        21 => day21::run(),
+        22 => day22::run(),
+        // 23 => day23::run(),
+        // 24 => day24::run(),
+        // 25 => day25::run(),
         _ => println!("Invalid day!"),
     }
 }
