@@ -12,7 +12,7 @@ impl Direction {
     }
 
     pub const fn is_vertical(self) -> bool {
-        !self.is_horizontal()
+        matches!(self, Self::Up | Self::Down)
     }
 
     /*

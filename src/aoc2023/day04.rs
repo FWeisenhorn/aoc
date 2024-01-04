@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::VecDeque;
 
 const INPUT: &str = include_str!("inputs/day04.txt");
 
@@ -42,10 +42,9 @@ fn part_b(input: &str) -> String {
 }
 
 fn calc_wins_per_line(line: &str) -> usize {
-    let x = line.split_once(':').unwrap();
-    let x = x.1.split_once('|').unwrap();
+    let x = line.split_once(':').unwrap().1.split_once('|').unwrap();
 
-    let winning_numbers: HashSet<u32> =
+    let winning_numbers: Vec<u32> =
         x.0.split_whitespace()
             .map(|x| x.parse::<u32>().unwrap())
             .collect();

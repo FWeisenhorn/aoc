@@ -1,3 +1,5 @@
+use std::cmp;
+
 const INPUT: &str = include_str!("inputs/day05.txt");
 
 pub fn run() {
@@ -5,20 +7,12 @@ pub fn run() {
     println!("{}", part_b(INPUT));
 }
 
-// Part B is slow (~140s with --release flag)
-//
-// optimization ideas:
-//  - Do some maths with the ranges that are being converted ?
-//  - Optimize the conversions ?
-
 fn part_a(input: &str) -> String {
     let input: Vec<&str> = input.lines().collect();
 
-    let seeds: Vec<u64> = input[0]
-        .split_at(7)
-        .1
+    let seeds: Vec<u64> = input[0][7..]
         .split_whitespace()
-        .map(|x| x.parse().unwrap())
+        .filter_map(|x| x.parse().ok())
         .collect();
 
     let conv = read_conversion_tables(&input);
@@ -41,32 +35,23 @@ fn part_a(input: &str) -> String {
 fn part_b(input: &str) -> String {
     let input: Vec<&str> = input.lines().collect();
 
-    let seeds = input[0]
-        .split_at(7)
-        .1
+    let seeds: Vec<u64> = input[0][7..]
         .split_whitespace()
-        .map(|x| x.parse().unwrap())
-        .collect::<Vec<u64>>();
-    let seeds = seeds[..].chunks(2).map(|x| (x[0]..x[0] + x[1]));
+        .filter_map(|x| x.parse().ok())
+        .collect();
+
+    let mut seeds: Vec<[u64; 2]> = seeds[..]
+        .chunks(2)
+        .map(|x| [x[0], x[0] + x[1] - 1])
+        .collect();
 
     let conv = read_conversion_tables(&input);
 
-    seeds
-        .map(|r| {
-            r.map(|s| {
-                conv.iter().fold(s, |acc, x| {
-                    match x.iter().find(|[_, b, c]| *b <= acc && acc < *b + *c) {
-                        Some([a, b, _]) => acc + a - b,
-                        None => acc,
-                    }
-                })
-            })
-            .min()
-            .unwrap()
-        })
-        .min()
-        .unwrap()
-        .to_string()
+    for c in conv {
+        seeds = convert_ranges(&seeds, &c);
+    }
+
+    seeds.into_iter().map(|r| r[0]).min().unwrap().to_string()
 }
 
 fn read_conversion_tables(input: &[&str]) -> Vec<Vec<[u64; 3]>> {
@@ -81,6 +66,50 @@ fn read_conversion_tables(input: &[&str]) -> Vec<Vec<[u64; 3]>> {
         }
         acc
     })
+}
+
+fn convert_ranges(v: &[[u64; 2]], convert_table: &[[u64; 3]]) -> Vec<[u64; 2]> {
+    // v: {[start, end]} (inclusive)
+    // c: {[dest_begin, source_begin, len]} (exclusive at end)
+    let mut to_process: Vec<_> = v.into();
+    to_process.sort_by_key(|t| t[0]);
+
+    let mut out = vec![];
+
+    for c in convert_table {
+        let mut still_to_process = vec![];
+        for r in to_process {
+            if let Some(t) = convertible_subrange(&r, c) {
+                if r[0] < t[0] {
+                    still_to_process.push([r[0], t[0] - 1]);
+                }
+                if t[1] < r[1] {
+                    still_to_process.push([t[1] + 1, r[1]]);
+                }
+                out.push([t[0] + c[0] - c[1], t[1] + c[0] - c[1]]);
+            } else {
+                still_to_process.push(r);
+            }
+        }
+
+        still_to_process.sort_by_key(|t| t[0]);
+        to_process = still_to_process;
+    }
+
+    out.append(&mut to_process);
+    out.sort_by_key(|t| t[0]);
+    out
+}
+
+fn convertible_subrange(r: &[u64; 2], c: &[u64; 3]) -> Option<[u64; 2]> {
+    let t1 = cmp::max(r[0], c[1]);
+    let t2 = cmp::min(r[1], c[1] + c[2] - 1);
+
+    if t1 <= t2 {
+        Some([t1, t2])
+    } else {
+        None
+    }
 }
 
 #[cfg(test)]

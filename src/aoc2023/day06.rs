@@ -1,3 +1,5 @@
+use std::ops::Div;
+
 const INPUT: &str = include_str!("inputs/day06.txt");
 
 pub fn run() {
@@ -43,10 +45,21 @@ fn part_b(input: &str) -> String {
         .parse()
         .unwrap();
 
-    (0..time)
-        .filter(|i| (time - i) * i > dist)
-        .count()
-        .to_string()
+    min_and_max_solutions(time, dist).unwrap().to_string()
+}
+
+#[allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss
+)]
+fn min_and_max_solutions(t: u64, d: u64) -> Option<u64> {
+    let t2 = (t * t).checked_sub(4 * d)?;
+    let x = (t2 as f64).sqrt();
+    let x1 = ((t as f64 - x).div(2.)).ceil() as u64;
+    let x2 = ((t as f64 + x).div(2.)).floor() as u64;
+
+    Some(x2 - x1 + 1)
 }
 
 #[cfg(test)]

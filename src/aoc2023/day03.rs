@@ -1,19 +1,7 @@
+use crate::utils::{direction::Direction, pos::Pos};
 use std::collections::{HashMap, HashSet};
 
 const INPUT: &str = include_str!("inputs/day03.txt");
-
-type Pos = (usize, usize);
-
-const NEIGHBOURS: [(i32, i32); 8] = [
-    (-1, -1),
-    (-1, 0),
-    (-1, 1),
-    (0, -1),
-    (0, 1),
-    (1, -1),
-    (1, 0),
-    (1, 1),
-];
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -21,11 +9,11 @@ pub fn run() {
 }
 
 fn part_a(input: &str) -> String {
-    let input: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let data: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
     let mut s: Vec<u32> = vec![];
 
-    input.iter().enumerate().for_each(|(i, line)| {
+    data.iter().enumerate().for_each(|(i, line)| {
         let mut cur: (u32, bool) = (0, false);
 
         line.iter().enumerate().for_each(|(j, c)| {
@@ -34,20 +22,16 @@ fn part_a(input: &str) -> String {
                 cur.0 = cur.0 * 10 + c.to_digit(10).unwrap();
 
                 // check if any neighbour is a punctuation mark (a)
-                NEIGHBOURS
+                neighbours()
                     .iter()
-                    .filter_map(|(a, b)| {
-                        match (
-                            (a + i32::try_from(i).unwrap()).try_into(),
-                            (b + i32::try_from(j).unwrap()).try_into(),
-                        ) {
-                            (Ok(x), Ok(y)) => Some((x, y)),
-                            _ => None,
-                        }
+                    .filter_map(|v| {
+                        v.iter().try_fold(Pos { x: i, y: j }, |acc, &dir| {
+                            acc.steps_checked(dir, 1, data.len(), data[0].len())
+                        })
                     })
-                    .for_each(|(a, b): Pos| {
-                        if let Some(line) = input.get(a) {
-                            if let Some(c) = line.get(b) {
+                    .for_each(|p| {
+                        if let Some(line) = data.get(p.x) {
+                            if let Some(c) = line.get(p.y) {
                                 if c.is_ascii_punctuation() && *c != '.' {
                                     cur.1 = true;
                                 }
@@ -72,11 +56,11 @@ fn part_a(input: &str) -> String {
 }
 
 fn part_b(input: &str) -> String {
-    let input: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let data: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
     let mut t: HashMap<Pos, Vec<u32>> = HashMap::new();
 
-    input.iter().enumerate().for_each(|(i, line)| {
+    data.iter().enumerate().for_each(|(i, line)| {
         let mut cur: (u32, HashSet<Pos>) = (0, HashSet::new());
 
         line.iter().enumerate().for_each(|(j, c)| {
@@ -85,22 +69,18 @@ fn part_b(input: &str) -> String {
                 cur.0 = cur.0 * 10 + c.to_digit(10).unwrap();
 
                 // check if any neighbour is a punctuation mark (a) or '*' (b)
-                NEIGHBOURS
+                neighbours()
                     .iter()
-                    .filter_map(|(a, b)| {
-                        match (
-                            (a + i32::try_from(i).unwrap()).try_into(),
-                            (b + i32::try_from(j).unwrap()).try_into(),
-                        ) {
-                            (Ok(x), Ok(y)) => Some((x, y)),
-                            _ => None,
-                        }
+                    .filter_map(|v| {
+                        v.iter().try_fold(Pos { x: i, y: j }, |acc, &dir| {
+                            acc.steps_checked(dir, 1, data.len(), data[0].len())
+                        })
                     })
-                    .for_each(|(a, b): Pos| {
-                        if let Some(line) = input.get(a) {
-                            if let Some(c) = line.get(b) {
+                    .for_each(|p| {
+                        if let Some(line) = data.get(p.x) {
+                            if let Some(c) = line.get(p.y) {
                                 if *c == '*' {
-                                    cur.1.insert((a, b));
+                                    cur.1.insert(p);
                                 }
                             }
                         }
@@ -137,6 +117,19 @@ fn part_b(input: &str) -> String {
         })
         .sum::<u32>()
         .to_string()
+}
+
+fn neighbours() -> [Vec<Direction>; 8] {
+    [
+        vec![Direction::Up, Direction::Left],
+        vec![Direction::Up],
+        vec![Direction::Up, Direction::Right],
+        vec![Direction::Left],
+        vec![Direction::Right],
+        vec![Direction::Down, Direction::Left],
+        vec![Direction::Down],
+        vec![Direction::Down, Direction::Right],
+    ]
 }
 
 #[cfg(test)]

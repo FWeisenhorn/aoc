@@ -7,10 +7,6 @@ pub struct Pos {
 }
 
 impl Pos {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn steps(&self, dir: Direction, steps: usize) -> Option<Self> {
         // up, down, left, right
         match dir {

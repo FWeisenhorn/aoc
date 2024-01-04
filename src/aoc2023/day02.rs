@@ -32,20 +32,24 @@ fn part_a(input: &str) -> String {
 pub fn part_b(input: &str) -> String {
     input
         .lines()
-        .map(|line| line.split_once(':').unwrap())
-        .map(|(_, line)| {
-            line.split(&[',', ';']).fold([0u32; 3], |acc, s| {
-                let mut x = acc;
-                match s[1..].split_once(' ').unwrap() {
-                    (i, "red") => x[0] = max(acc[0], i.parse().unwrap()),
-                    (i, "blue") => x[1] = max(acc[1], i.parse().unwrap()),
-                    (i, "green") => x[2] = max(acc[2], i.parse().unwrap()),
-                    _ => unreachable!(),
-                };
-                x
-            })
+        .map(|line| {
+            line.split_once(':')
+                .unwrap()
+                .1
+                .split(&[',', ';'])
+                .fold([0u32; 3], |acc, s| {
+                    let mut x = acc;
+                    match s[1..].split_once(' ').unwrap() {
+                        (i, "red") => x[0] = max(acc[0], i.parse().unwrap()),
+                        (i, "blue") => x[1] = max(acc[1], i.parse().unwrap()),
+                        (i, "green") => x[2] = max(acc[2], i.parse().unwrap()),
+                        _ => unreachable!(),
+                    };
+                    x
+                })
+                .iter()
+                .product::<u32>()
         })
-        .map(|x| x.iter().product::<u32>())
         .sum::<u32>()
         .to_string()
 }
