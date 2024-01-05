@@ -13,6 +13,7 @@ fn part_a(input: &str) -> String {
 
 fn part_b(input: &str, expansion: usize) -> String {
     let mut galaxies: Vec<Pos> = vec![];
+
     input.lines().enumerate().for_each(|(i, line)| {
         line.chars().enumerate().for_each(|(j, c)| {
             if c == '#' {

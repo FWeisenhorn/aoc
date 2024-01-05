@@ -4,7 +4,7 @@ const INPUT: &str = include_str!("inputs/day20.txt");
 
 pub fn run() {
     println!("{}", part_a(INPUT));
-    println!("{}", part_b(INPUT));
+    // println!("{}", part_b(INPUT));
 }
 
 fn part_a(input: &str) -> String {
@@ -40,9 +40,9 @@ fn part_a(input: &str) -> String {
     (lows * highs).to_string()
 }
 
-fn part_b(_input: &str) -> String {
-    String::new()
-}
+// fn part_b(_input: &str) -> String {
+//     String::new()
+// }
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Hash, Copy, Clone)]
 enum Pulse {
@@ -64,8 +64,6 @@ enum ModuleType<'a> {
         last_seen: Vec<Pulse>,
     },
     Broadcaster,
-    // Button(ButtonModule),
-    // OutputOnly
 }
 
 impl Module<'_> {

@@ -56,16 +56,9 @@ fn part_b(input: &str) -> String {
         .to_string()
 }
 
+#[inline]
 fn custom_hash_func(s: &str) -> usize {
-    let mut t = 0usize;
-
-    for c in s.chars() {
-        t += c as usize;
-        t *= 17;
-        t %= 256;
-    }
-
-    t
+    s.chars().fold(0, |acc, c| ((acc + c as usize) * 17) % 256)
 }
 
 #[cfg(test)]

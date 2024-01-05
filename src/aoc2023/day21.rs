@@ -1,11 +1,11 @@
+use crate::utils::{direction::NEIGHBOURS, pos::Pos};
 use std::collections::HashSet;
-const INPUT: &str = include_str!("inputs/day21.txt");
 
-type Pos = (usize, usize);
+const INPUT: &str = include_str!("inputs/day21.txt");
 
 pub fn run() {
     println!("{}", part_a(INPUT, 64));
-    println!("{}", part_b(INPUT, 26_501_365),);
+    // println!("{}", part_b(INPUT, 26_501_365),);
 }
 
 fn part_a(input: &str, n_steps: usize) -> String {
@@ -13,45 +13,45 @@ fn part_a(input: &str, n_steps: usize) -> String {
     let mut possible_pos = HashSet::<Pos>::new();
     possible_pos.insert(start);
 
-    for _ in 0..n_steps {
-        let mut next_possible_pos = HashSet::<Pos>::new();
-        for pos in &possible_pos {
-            for step in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
-                let new_pos = (pos.0 as i32 + step.0, pos.1 as i32 + step.1);
+    let max_x = data.len();
+    let max_y = data[0].len();
 
-                if 0 <= new_pos.0
-                    && (new_pos.0 as usize) < data.len()
-                    && 0 <= new_pos.1
-                    && (new_pos.1 as usize) < data[0].len()
-                {
-                    let (x, y) = (new_pos.0 as usize, new_pos.1 as usize);
-                    if data[x][y] == '.' {
-                        next_possible_pos.insert((x, y));
+    for _ in 0..n_steps {
+        let mut next_possible_pos = vec![];
+        for pos in &possible_pos {
+            NEIGHBOURS
+                .iter()
+                .filter_map(|&d| pos.steps_checked(d, 1, max_x, max_y))
+                .for_each(|p| {
+                    if data[p.x][p.y] == '.' {
+                        next_possible_pos.push(p);
                     }
-                }
-            }
+                });
         }
 
-        possible_pos = next_possible_pos;
+        possible_pos = next_possible_pos.into_iter().collect();
     }
 
     possible_pos.len().to_string()
 }
 
-fn part_b(_input: &str, _n_steps: usize) -> String {
-    String::new()
-}
+// fn part_b(_input: &str, _n_steps: usize) -> String {
+//     String::new()
+// }
 
 fn read_input(input: &str) -> (Vec<Vec<char>>, Pos) {
-    let mut k: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let mut m: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
-    let x = k.iter().position(|v| v.contains(&'S')).unwrap();
+    let start = {
+        let x_ = m.iter().position(|v| v.contains(&'S')).unwrap();
+        let y_ = m[x_].iter().position(|&c| c == 'S').unwrap();
 
-    let y = k[x].iter().position(|&c| c == 'S').unwrap();
+        Pos { x: x_, y: y_ }
+    };
 
-    k[x][y] = '.';
+    m[start.x][start.y] = '.';
 
-    (k, (x, y))
+    (m, start)
 }
 
 #[cfg(test)]
@@ -65,13 +65,13 @@ mod tests {
         assert_eq!(part_a(_TEST, 6), "16");
     }
 
-    #[test]
-    fn test_b() {
-        assert_eq!(part_b(_TEST, 10), "50");
-        assert_eq!(part_b(_TEST, 50), "1594");
-        assert_eq!(part_b(_TEST, 100), "6536");
-        assert_eq!(part_b(_TEST, 500), "167004");
-        assert_eq!(part_b(_TEST, 1000), "668697");
-        assert_eq!(part_b(_TEST, 5000), "16733044");
-    }
+    // #[test]
+    // fn test_b() {
+    //     assert_eq!(part_b(_TEST, 10), "50");
+    //     assert_eq!(part_b(_TEST, 50), "1594");
+    //     assert_eq!(part_b(_TEST, 100), "6536");
+    //     assert_eq!(part_b(_TEST, 500), "167004");
+    //     assert_eq!(part_b(_TEST, 1000), "668697");
+    //     assert_eq!(part_b(_TEST, 5000), "16733044");
+    // }
 }

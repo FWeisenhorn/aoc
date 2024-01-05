@@ -1,6 +1,5 @@
+use crate::utils::{direction::Direction, pos::Pos};
 use std::collections::{BinaryHeap, HashMap};
-
-type Pos = (usize, usize);
 
 const INPUT: &str = include_str!("inputs/day17.txt");
 
@@ -28,20 +27,25 @@ fn dijkstra(input: &str, min_step: u8, max_step: u8) -> String {
     expand_queue.push((
         0,
         Key {
-            pos: (0, 0),
+            pos: Pos::default(),
             dir: Direction::Right,
         },
     ));
     expand_queue.push((
         0,
         Key {
-            pos: (0, 0),
+            pos: Pos::default(),
             dir: Direction::Down,
         },
     ));
 
     while let Some(cur) = expand_queue.pop() {
-        if cur.1.pos == (max_x - 1, max_y - 1) {
+        if cur.1.pos
+            == (Pos {
+                x: max_x - 1,
+                y: max_y - 1,
+            })
+        {
             return (-cur.0).to_string();
         }
 
@@ -70,68 +74,30 @@ fn expand_if_able(
         return;
     }
 
+    let max_x = heat_map.len();
+    let max_y = heat_map[0].len();
+
     for new_dir in [cur.1.dir.turn_left(), cur.1.dir.turn_right()] {
         let mut new_cost = cur.0;
 
         for n in 1..=max_step {
-            if let Some(new_pos) = new_dir.make_steps(cur.1.pos, n) {
-                if new_pos.0 < heat_map.len() && new_pos.1 < heat_map[0].len() {
-                    new_cost -= i32::from(heat_map[new_pos.0][new_pos.1] - b'0');
+            if let Some(new_pos) = cur.1.pos.steps_checked(new_dir, n as usize, max_x, max_y) {
+                new_cost -= i32::from(heat_map[new_pos.x][new_pos.y] - b'0');
 
-                    if n < min_step {
-                        continue;
-                    }
+                if n < min_step {
+                    continue;
+                }
 
-                    let new_key = Key {
-                        pos: new_pos,
-                        dir: new_dir,
-                    };
+                let new_key = Key {
+                    pos: new_pos,
+                    dir: new_dir,
+                };
 
-                    if new_cost > *cache.get(&new_key).unwrap_or(&i32::MIN) {
-                        cache.insert(new_key, new_cost);
-                        to_expand.push((new_cost, new_key));
-                    }
+                if new_cost > *cache.get(&new_key).unwrap_or(&i32::MIN) {
+                    cache.insert(new_key, new_cost);
+                    to_expand.push((new_cost, new_key));
                 }
             }
-        }
-    }
-}
-
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Copy, Clone)]
-enum Direction {
-    Up,    // -x
-    Left,  // -y
-    Down,  // +x
-    Right, // +y
-}
-
-impl Direction {
-    const fn turn_right(self) -> Self {
-        match self {
-            Self::Up => Self::Right,
-            Self::Left => Self::Up,
-            Self::Down => Self::Left,
-            Self::Right => Self::Down,
-        }
-    }
-
-    const fn turn_left(self) -> Self {
-        match self {
-            Self::Up => Self::Left,
-            Self::Left => Self::Down,
-            Self::Down => Self::Right,
-            Self::Right => Self::Up,
-        }
-    }
-
-    const fn make_steps(self, x: Pos, n: u8) -> Option<Pos> {
-        let n = n as usize;
-        match self {
-            Self::Up if x.0 >= n => Some((x.0 - n, x.1)),
-            Self::Left if x.1 >= n => Some((x.0, x.1 - n)),
-            Self::Down => Some((x.0 + n, x.1)),
-            Self::Right => Some((x.0, x.1 + n)),
-            _ => None,
         }
     }
 }

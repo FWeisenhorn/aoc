@@ -36,10 +36,8 @@ impl Pos {
         max_x: usize,
         max_y: usize,
     ) -> Option<Self> {
-        match self.steps(dir, steps) {
-            Some(p) if p.x < max_x && p.y < max_y => Some(p),
-            _ => None,
-        }
+        self.steps(dir, steps)
+            .filter(|p| p.x < max_x && p.y < max_y)
     }
 
     pub const fn distance(&self, other: &Self) -> usize {
