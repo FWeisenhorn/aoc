@@ -1,10 +1,10 @@
-use std::collections::{HashMap, HashSet, VecDeque};
-
-type Pos = (usize, usize);
-type SignedPos = (i32, i32);
+use crate::utils::{
+    direction::{Direction, NEIGHBOURS},
+    pos::Pos,
+};
+use std::collections::{HashSet, VecDeque};
 
 const INPUT: &str = include_str!("inputs/day10.txt");
-const NEIGHBOURS: [SignedPos; 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
 pub fn run() {
     println!("{}", part_a(INPUT));
@@ -12,327 +12,170 @@ pub fn run() {
 }
 
 fn part_a(input: &str) -> String {
-    let m: HashMap<Pos, char> = input
-        .lines()
-        .enumerate()
-        .flat_map(|(i, x)| x.chars().enumerate().map(move |(j, c)| ((i, j), c)))
-        .collect();
+    let m: Vec<&[u8]> = input.lines().map(str::as_bytes).collect();
+    let max_x = m.len();
+    let max_y = m[0].len();
 
-    let start = m.iter().find(|(_, &v)| v == 'S').unwrap().0;
-
-    let mut i: u32 = 0;
-    let (mut x, mut y) = start;
-    let mut dir: char = '0';
-
-    // 1. find initial direction
-    if let Some('|' | 'J' | 'L') = m.get(&(x + 1, y)) {
-        dir = 'd';
-    }
-
-    if let Some('|' | 'F' | '7') = m.get(&(x - 1, y)) {
-        dir = 'u';
-    }
-
-    if let Some('-' | 'J' | '7') = m.get(&(x, y + 1)) {
-        dir = 'r';
+    let start = {
+        let x_ = m.iter().position(|v| v.contains(&b'S')).unwrap();
+        let y_ = m[x_].iter().position(|x| x == &b'S').unwrap();
+        Pos { x: x_, y: y_ }
     };
 
-    assert_ne!(dir, '0');
+    let mut i: usize = 0;
 
-    // 2. go through the loop until we are back at the start
+    let mut walker = start;
+    let mut walker_dir = find_initial_direction(&m, &start, max_x, max_y);
+
+    // go through the loop until we are back at the start
     loop {
         i += 1;
 
-        match dir {
-            'u' => {
-                (x, y) = (x - 1, y);
-                match m.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('|') => (),
-                    Some('7') => {
-                        dir = 'l';
-                    }
-                    Some('F') => {
-                        dir = 'r';
-                    }
-                    _ => unreachable!(),
+        if let Some(t) = walker.steps_checked(walker_dir, 1, max_x, max_y) {
+            walker = t;
+            match (walker_dir, m[t.x][t.y]) {
+                (_, b'S') => {
+                    break;
                 }
-            }
-            'd' => {
-                (x, y) = (x + 1, y);
-                match m.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('|') => (),
-                    Some('J') => {
-                        dir = 'l';
-                    }
-                    Some('L') => {
-                        dir = 'r';
-                    }
-                    _ => unreachable!(),
+                (Direction::Up | Direction::Down, b'|')
+                | (Direction::Left | Direction::Right, b'-') => (),
+
+                (Direction::Up, b'7')
+                | (Direction::Down, b'L')
+                | (Direction::Left, b'F')
+                | (Direction::Right, b'J') => {
+                    walker_dir.turn_assign_left();
                 }
-            }
-            'l' => {
-                (x, y) = (x, y - 1);
-                match m.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('-') => (),
-                    Some('L') => {
-                        dir = 'u';
-                    }
-                    Some('F') => {
-                        dir = 'd';
-                    }
-                    _ => unreachable!(),
+                (Direction::Up, b'F')
+                | (Direction::Down, b'J')
+                | (Direction::Left, b'L')
+                | (Direction::Right, b'7') => {
+                    walker_dir.turn_assign_right();
                 }
+                _ => unreachable!(),
             }
-            'r' => {
-                (x, y) = (x, y + 1);
-                match m.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('-') => (),
-                    Some('J') => {
-                        dir = 'u';
-                    }
-                    Some('7') => {
-                        dir = 'd';
-                    }
-                    _ => unreachable!(),
-                }
-            }
-            _ => unreachable!(),
         }
     }
-
     (i / 2).to_string()
 }
 
-#[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
 fn part_b(input: &str) -> String {
-    let input: HashMap<SignedPos, char> = input
-        .lines()
-        .enumerate()
-        .flat_map(|(i, x)| {
-            x.chars()
-                .enumerate()
-                .map(move |(j, c)| ((i.try_into().unwrap(), j.try_into().unwrap()), c))
-        })
-        .collect();
+    let m: Vec<&[u8]> = input.lines().map(str::as_bytes).collect();
+    let max_x = m.len();
+    let max_y = m[0].len();
 
-    let mut visited = HashSet::<SignedPos>::new();
-    let mut passed_rhs = HashSet::<SignedPos>::new();
-    let mut passed_lhs = HashSet::<SignedPos>::new();
-
-    let start = input.iter().find(|(_, &v)| v == 'S').unwrap().0;
-
-    let mut i = 0; // will be > 0 if the route was walked in a right turn
-
-    let (mut x, mut y) = start;
-    let mut dir: char = '0';
-
-    if let Some('|' | 'J' | 'L') = input.get(&(x + 1, y)) {
-        dir = 'd';
-    }
-
-    if let Some('|' | 'F' | '7') = input.get(&(x - 1, y)) {
-        dir = 'u';
-    }
-
-    if let Some('-' | 'J' | '7') = input.get(&(x, y + 1)) {
-        dir = 'r';
+    let start = {
+        let x_ = m.iter().position(|v| v.contains(&b'S')).unwrap();
+        let y_ = m[x_].iter().position(|x| x == &b'S').unwrap();
+        Pos { x: x_, y: y_ }
     };
 
-    assert_ne!(dir, '0');
+    let mut walker = start;
+    let mut walker_dir = find_initial_direction(&m, &start, max_x, max_y);
 
-    loop {
-        visited.insert((x, y));
+    let mut visited: HashSet<Pos> = HashSet::new();
+    let mut passed_rhs: HashSet<Pos> = HashSet::new();
+    let mut passed_lhs: HashSet<Pos> = HashSet::new();
 
-        match dir {
-            'u' => {
-                (x, y) = (x - 1, y);
-                match input.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('|') => {
-                        if input.contains_key(&(x, y - 1)) {
-                            passed_lhs.insert((x, y - 1));
-                        }
-                        if input.contains_key(&(x, y + 1)) {
-                            passed_rhs.insert((x, y + 1));
-                        }
-                    }
-                    Some('7') => {
-                        dir = 'l';
-                        i -= 1;
-                        if input.contains_key(&(x - 1, y)) {
-                            passed_rhs.insert((x - 1, y));
-                        }
-                        if input.contains_key(&(x, y + 1)) {
-                            passed_rhs.insert((x, y + 1));
-                        }
-                    }
-                    Some('F') => {
-                        dir = 'r';
-                        i += 1;
-                        if input.contains_key(&(x - 1, y)) {
-                            passed_lhs.insert((x - 1, y));
-                        }
-                        if input.contains_key(&(x, y - 1)) {
-                            passed_lhs.insert((x, y - 1));
-                        }
-                    }
-                    _ => unreachable!(),
-                }
+    let mut turn_counter: i32 = 0; // will be > 0 if the route was walked in a right turn
+
+    while let Some(t) = walker.steps_checked(walker_dir, 1, max_x, max_y) {
+        visited.insert(t);
+        walker = t;
+
+        match (walker_dir, m[t.x][t.y]) {
+            (_, b'S') => {
+                break;
             }
-            'd' => {
-                (x, y) = (x + 1, y);
-                match input.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('|') => {
-                        if input.contains_key(&(x, y - 1)) {
-                            passed_rhs.insert((x, y - 1));
-                        }
-                        if input.contains_key(&(x, y + 1)) {
-                            passed_lhs.insert((x, y + 1));
-                        }
-                    }
-                    Some('J') => {
-                        dir = 'l';
-                        i += 1;
-                        if input.contains_key(&(x + 1, y)) {
-                            passed_lhs.insert((x + 1, y));
-                        }
-                        if input.contains_key(&(x, y + 1)) {
-                            passed_lhs.insert((x, y + 1));
-                        }
-                    }
-                    Some('L') => {
-                        dir = 'r';
-                        i -= 1;
-                        if input.contains_key(&(x + 1, y)) {
-                            passed_rhs.insert((x + 1, y));
-                        }
-                        if input.contains_key(&(x, y - 1)) {
-                            passed_rhs.insert((x, y - 1));
-                        }
-                    }
-                    _ => unreachable!(),
-                }
+            //
+            (Direction::Up | Direction::Down, b'|')
+            | (Direction::Left | Direction::Right, b'-') => {
+                add_neighbour(&walker, walker_dir.turn_left(), &mut passed_lhs);
+                add_neighbour(&walker, walker_dir.turn_right(), &mut passed_rhs);
             }
-            'l' => {
-                (x, y) = (x, y - 1);
-                match input.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('-') => {
-                        if input.contains_key(&(x - 1, y)) {
-                            passed_rhs.insert((x - 1, y));
-                        }
-                        if input.contains_key(&(x + 1, y)) {
-                            passed_lhs.insert((x + 1, y));
-                        }
-                    }
-                    Some('L') => {
-                        dir = 'u';
-                        i += 1;
-                        if input.contains_key(&(x + 1, y)) {
-                            passed_lhs.insert((x + 1, y));
-                        }
-                        if input.contains_key(&(x, y - 1)) {
-                            passed_lhs.insert((x, y - 1));
-                        }
-                    }
-                    Some('F') => {
-                        dir = 'd';
-                        i -= 1;
-                        if input.contains_key(&(x - 1, y)) {
-                            passed_rhs.insert((x - 1, y));
-                        }
-                        if input.contains_key(&(x, y - 1)) {
-                            passed_rhs.insert((x, y - 1));
-                        }
-                    }
-                    _ => unreachable!(),
-                }
+
+            (Direction::Up, b'7')
+            | (Direction::Down, b'L')
+            | (Direction::Left, b'F')
+            | (Direction::Right, b'J') => {
+                add_neighbour(&walker, walker_dir, &mut passed_rhs);
+                add_neighbour(&walker, walker_dir.turn_right(), &mut passed_rhs);
+                walker_dir.turn_assign_left();
+                turn_counter -= 1;
             }
-            'r' => {
-                (x, y) = (x, y + 1);
-                match input.get(&(x, y)) {
-                    Some('S') => {
-                        break;
-                    }
-                    Some('-') => {
-                        if input.contains_key(&(x - 1, y)) {
-                            passed_lhs.insert((x - 1, y));
-                        }
-                        if input.contains_key(&(x + 1, y)) {
-                            passed_rhs.insert((x + 1, y));
-                        }
-                    }
-                    Some('J') => {
-                        dir = 'u';
-                        i -= 1;
-                        if input.contains_key(&(x + 1, y)) {
-                            passed_rhs.insert((x + 1, y));
-                        }
-                        if input.contains_key(&(x, y + 1)) {
-                            passed_rhs.insert((x, y + 1));
-                        }
-                    }
-                    Some('7') => {
-                        dir = 'd';
-                        i += 1;
-                        if input.contains_key(&(x - 1, y)) {
-                            passed_lhs.insert((x - 1, y));
-                        }
-                        if input.contains_key(&(x, y + 1)) {
-                            passed_lhs.insert((x, y + 1));
-                        }
-                    }
-                    _ => unreachable!(),
-                }
+            (Direction::Up, b'F')
+            | (Direction::Down, b'J')
+            | (Direction::Left, b'L')
+            | (Direction::Right, b'7') => {
+                add_neighbour(&walker, walker_dir, &mut passed_lhs);
+                add_neighbour(&walker, walker_dir.turn_left(), &mut passed_lhs);
+                walker_dir.turn_assign_right();
+                turn_counter += 1;
             }
+
             _ => unreachable!(),
         }
     }
 
-    let mut t = if i > 0 { passed_rhs } else { passed_lhs };
-    t.retain(|p| !visited.contains(p));
+    expand_queue(
+        (if turn_counter > 0 {
+            passed_rhs
+        } else {
+            passed_lhs
+        })
+        .difference(&visited)
+        .copied()
+        .collect(),
+        &visited,
+        max_x,
+        max_y,
+    )
+    .len()
+    .to_string()
+}
 
-    expand_queue(t, &input.keys().collect(), &visited)
-        .len()
-        .to_string()
+fn find_initial_direction(m: &[&[u8]], start: &Pos, max_x: usize, max_y: usize) -> Direction {
+    if let Some(t) = start.steps_checked(Direction::Down, 1, max_x, max_y) {
+        if matches!(m[t.x][t.y], b'|' | b'J' | b'L') {
+            return Direction::Down;
+        }
+    }
+
+    if let Some(t) = start.steps_checked(Direction::Up, 1, max_x, max_y) {
+        if matches!(m[t.x][t.y], b'|' | b'F' | b'7') {
+            return Direction::Up;
+        }
+    }
+
+    if let Some(t) = start.steps_checked(Direction::Right, 1, max_x, max_y) {
+        if matches!(m[t.x][t.y], b'-' | b'J' | b'7') {
+            return Direction::Right;
+        }
+    }
+    unreachable!()
+}
+
+#[inline]
+fn add_neighbour(cur_pos: &Pos, d: Direction, s: &mut HashSet<Pos>) {
+    if let Some(neigh) = cur_pos.steps(d, 1) {
+        s.insert(neigh);
+    }
 }
 
 fn expand_queue(
-    to_expand: HashSet<SignedPos>,
-    base_region: &HashSet<&SignedPos>,
-    visited: &HashSet<SignedPos>,
-) -> HashSet<SignedPos> {
-    let mut to_expand: VecDeque<SignedPos> = to_expand.into_iter().collect();
-    let mut expanded = HashSet::<SignedPos>::new();
+    mut to_expand: VecDeque<Pos>,
+    visited: &HashSet<Pos>,
+    max_x: usize,
+    max_y: usize,
+) -> HashSet<Pos> {
+    let mut expanded = HashSet::<Pos>::new();
 
-    while !to_expand.is_empty() {
-        let cur = to_expand.pop_front().unwrap();
+    while let Some(cur) = to_expand.pop_front() {
         NEIGHBOURS
             .iter()
-            .map(|nei| (nei.0 + cur.0, nei.1 + cur.1))
+            .filter_map(|&d| cur.steps_checked(d, 1, max_x, max_y))
             .for_each(|p| {
-                if base_region.contains(&p)
-                    && !(expanded.contains(&p) || to_expand.contains(&p) || visited.contains(&p))
-                {
+                if !(expanded.contains(&p) || to_expand.contains(&p) || visited.contains(&p)) {
                     to_expand.push_back(p);
                 }
             });
