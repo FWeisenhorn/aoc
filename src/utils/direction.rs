@@ -13,6 +13,20 @@ pub enum Direction {
     Right,
 }
 
+impl TryFrom<char> for Direction {
+    type Error = &'static str;
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'U' => Ok(Self::Up),
+            'D' => Ok(Self::Down),
+            'L' => Ok(Self::Left),
+            'R' => Ok(Self::Right),
+            _ => Err("Direction cannot be created!"),
+        }
+    }
+}
+
 impl Direction {
     pub const fn is_horizontal(self) -> bool {
         matches!(self, Self::Left | Self::Right)
