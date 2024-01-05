@@ -21,7 +21,7 @@ fn part_b(input: &str) -> String {
             if s.contains('=') {
                 let (a, b) = s.split_once('=').unwrap();
                 let pos = custom_hash_func(a);
-                let focallength = b.parse().unwrap();
+                let focallength: usize = b.parse().unwrap();
                 match boxes[pos].iter().position(|&(x, _)| x == a) {
                     Some(k) => {
                         boxes[pos][k].1 = focallength;

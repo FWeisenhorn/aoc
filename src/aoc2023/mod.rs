@@ -21,7 +21,7 @@ mod day20;
 mod day21;
 mod day22;
 // mod day23;
-// mod day24;
+mod day24;
 // mod day25;
 
 pub fn run(day: u8) {
@@ -49,7 +49,7 @@ pub fn run(day: u8) {
         21 => day21::run(),
         22 => day22::run(),
         // 23 => day23::run(),
-        // 24 => day24::run(),
+        24 => day24::run(),
         // 25 => day25::run(),
         _ => println!("Invalid day!"),
     }
