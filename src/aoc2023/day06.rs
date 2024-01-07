@@ -13,11 +13,11 @@ fn part_a(input: &str) -> String {
     let times = input[0]
         .split_whitespace()
         .skip(1)
-        .map(|x| x.parse::<u32>().unwrap());
+        .filter_map(|x| x.parse::<u32>().ok());
     let dists = input[1]
         .split_whitespace()
         .skip(1)
-        .map(|x| x.parse::<u32>().unwrap());
+        .filter_map(|x| x.parse::<u32>().ok());
 
     times
         .zip(dists)
@@ -29,23 +29,25 @@ fn part_a(input: &str) -> String {
 fn part_b(input: &str) -> String {
     let input: Vec<&str> = input.lines().collect();
 
-    let time: u64 = input[0]
+    let time = input[0]
         .split_whitespace()
         .skip(1)
         .flat_map(str::chars)
         .collect::<String>()
-        .parse()
-        .unwrap();
+        .parse::<u64>()
+        .ok();
 
-    let dist: u64 = input[1]
+    let dist = input[1]
         .split_whitespace()
         .skip(1)
         .flat_map(str::chars)
         .collect::<String>()
-        .parse()
-        .unwrap();
+        .parse::<u64>()
+        .ok();
 
-    min_and_max_solutions(time, dist).unwrap().to_string()
+    time.zip(dist)
+        .and_then(|(t, d)| min_and_max_solutions(t, d))
+        .map_or_else(|| unreachable!(), |x| x.to_string())
 }
 
 #[allow(
@@ -76,5 +78,15 @@ mod tests {
     #[test]
     fn test_b() {
         assert_eq!(part_b(_TEST), "71503");
+    }
+
+    #[test]
+    fn result_a() {
+        assert_eq!(part_a(INPUT), "4568778");
+    }
+
+    #[test]
+    fn result_b() {
+        assert_eq!(part_b(INPUT), "28973936");
     }
 }

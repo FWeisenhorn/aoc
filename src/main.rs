@@ -13,7 +13,7 @@ mod utils {
 mod aoc2023;
 
 const YEAR: u8 = 23;
-const DAY: u8 = 16;
+const DAY: u8 = 6;
 
 fn main() {
     match YEAR {

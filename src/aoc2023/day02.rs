@@ -10,20 +10,25 @@ pub fn run() {
 fn part_a(input: &str) -> String {
     input
         .lines()
-        .map(|line| line.split_once(':').unwrap())
-        .filter_map(|(a, b)| {
-            if b.split(&[',', ';'])
-                .any(|s| match s[1..].split_once(' ').unwrap() {
-                    (i, "red") => i.parse::<u32>().unwrap() > 12,
-                    (i, "green") => i.parse::<u32>().unwrap() > 13,
-                    (i, "blue") => i.parse::<u32>().unwrap() > 14,
-                    _ => unreachable!(),
+        .filter_map(|line| {
+            line.split_once(':')
+                .filter(|(_, games)| {
+                    !games.split(&[',', ';']).any(|s| {
+                        s[1..]
+                            .split_once(char::is_whitespace)
+                            .map_or(false, |(i, colour)| match colour {
+                                "red" => i.parse::<u32>().is_ok_and(|x| x > 12),
+                                "green" => i.parse::<u32>().is_ok_and(|x| x > 13),
+                                "blue" => i.parse::<u32>().is_ok_and(|x| x > 14),
+                                _ => unreachable!(),
+                            })
+                    })
                 })
-            {
-                None
-            } else {
-                a.split_whitespace().last().unwrap().parse::<u32>().ok()
-            }
+                .and_then(|(a, _)| {
+                    a.split_whitespace()
+                        .last()
+                        .and_then(|s| s.parse::<u32>().ok())
+                })
         })
         .sum::<u32>()
         .to_string()
@@ -32,23 +37,27 @@ fn part_a(input: &str) -> String {
 pub fn part_b(input: &str) -> String {
     input
         .lines()
-        .map(|line| {
-            line.split_once(':')
-                .unwrap()
-                .1
-                .split(&[',', ';'])
-                .fold([0u32; 3], |acc, s| {
-                    let mut x = acc;
-                    match s[1..].split_once(' ').unwrap() {
-                        (i, "red") => x[0] = max(acc[0], i.parse().unwrap()),
-                        (i, "blue") => x[1] = max(acc[1], i.parse().unwrap()),
-                        (i, "green") => x[2] = max(acc[2], i.parse().unwrap()),
-                        _ => unreachable!(),
-                    };
-                    x
-                })
-                .iter()
-                .product::<u32>()
+        .filter_map(|line| {
+            line.split_once(':').and_then(|(_, games)| {
+                games
+                    .split(&[',', ';'])
+                    .try_fold([0; 3], |mut acc, game| {
+                        game[1..]
+                            .split_once(char::is_whitespace)
+                            .and_then(|(i, colour)| {
+                                i.parse::<u32>().map_or(None, |n| {
+                                    match colour {
+                                        "red" => acc[0] = max(acc[0], n),
+                                        "blue" => acc[1] = max(acc[1], n),
+                                        "green" => acc[2] = max(acc[2], n),
+                                        _ => unreachable!(),
+                                    }
+                                    Some(acc)
+                                })
+                            })
+                    })
+                    .map(|arr| arr.into_iter().product::<u32>())
+            })
         })
         .sum::<u32>()
         .to_string()

@@ -69,7 +69,7 @@ fn create_brick_from_string(input: &str) -> Brick {
 }
 
 fn create_pos_from_string(input: &str) -> Pos {
-    let t: Vec<_> = input.split(',').map(|s| s.parse().unwrap()).collect();
+    let t: Vec<_> = input.split(',').filter_map(|s| s.parse().ok()).collect();
     [t[0], t[1], t[2]]
 }
 
@@ -77,24 +77,24 @@ fn move_bricks_to_floor(bricks: &mut Vec<Brick>) {
     for i in 0..bricks.len() {
         let bricks_pos = bricks.clone().drain(0..i).flatten().collect::<HashSet<_>>();
 
-        let brick_falling = bricks.get_mut(i).unwrap();
+        if let Some(brick_falling) = bricks.get_mut(i) {
+            loop {
+                if brick_falling.iter().any(|&[_, _, z]| z <= 1) {
+                    break;
+                }
 
-        loop {
-            if brick_falling.iter().any(|&[_, _, z]| z <= 1) {
-                break;
+                if brick_falling
+                    .iter()
+                    .any(|&[x, y, z]| bricks_pos.contains(&[x, y, z - 1]))
+                {
+                    break;
+                }
+
+                *brick_falling = brick_falling
+                    .iter()
+                    .map(|&[x, y, z]| [x, y, z - 1])
+                    .collect();
             }
-
-            if brick_falling
-                .iter()
-                .any(|&[x, y, z]| bricks_pos.contains(&[x, y, z - 1]))
-            {
-                break;
-            }
-
-            *brick_falling = brick_falling
-                .iter()
-                .map(|&[x, y, z]| [x, y, z - 1])
-                .collect();
         }
     }
 }

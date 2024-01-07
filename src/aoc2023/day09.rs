@@ -11,7 +11,7 @@ fn part_a(input: &str) -> String {
         .map(|line| {
             let values: Vec<i32> = line
                 .split_whitespace()
-                .map(|s| s.parse().unwrap())
+                .filter_map(|s| s.parse().ok())
                 .collect();
             values.last().unwrap() + calc_next(&vec_diff(&values))
         })
@@ -25,7 +25,7 @@ fn part_b(input: &str) -> String {
         .map(|line| {
             let values: Vec<i32> = line
                 .split_whitespace()
-                .map(|s| s.parse().unwrap())
+                .filter_map(|s| s.parse().ok())
                 .collect();
             values.first().unwrap() - calc_prev(&vec_diff(&values))
         })

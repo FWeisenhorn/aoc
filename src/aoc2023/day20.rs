@@ -82,7 +82,7 @@ impl Module<'_> {
                 upstream: ups,
                 last_seen: las,
             } => {
-                let n = ups.iter().position(|&x| x == from).unwrap();
+                let n = ups.iter().position(|&x| x == from)?;
                 las[n] = p;
                 if las.iter().all(|&x| x == Pulse::High) {
                     Some(Pulse::Low)

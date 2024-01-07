@@ -8,8 +8,13 @@ pub fn run() {
 fn part_a(input: &str) -> String {
     input
         .lines()
-        .map(|line| line.split(',').map(custom_hash_func).sum::<usize>())
-        .sum::<usize>() // Because the input is only one line, this could also be .first().unwrap()
+        .map(|line| {
+            line.split(',')
+                .map(custom_hash_func)
+                .map(u32::from)
+                .sum::<u32>()
+        })
+        .sum::<u32>() // Because the input is only one line, this could also be .first().unwrap()
         .to_string()
 }
 
@@ -20,8 +25,8 @@ fn part_b(input: &str) -> String {
         line.split(',').for_each(|s| {
             if s.contains('=') {
                 let (a, b) = s.split_once('=').unwrap();
-                let pos = custom_hash_func(a);
-                let focallength: usize = b.parse().unwrap();
+                let pos = custom_hash_func(a) as usize;
+                let focallength = b.parse::<usize>().unwrap();
                 match boxes[pos].iter().position(|&(x, _)| x == a) {
                     Some(k) => {
                         boxes[pos][k].1 = focallength;
@@ -32,7 +37,7 @@ fn part_b(input: &str) -> String {
                 }
             } else if s.contains('-') {
                 let (a, _) = s.split_once('-').unwrap();
-                let pos = custom_hash_func(a);
+                let pos = custom_hash_func(a) as usize;
 
                 if let Some(k) = boxes[pos].iter().position(|&(x, _)| x == a) {
                     boxes[pos].remove(k);
@@ -57,8 +62,9 @@ fn part_b(input: &str) -> String {
 }
 
 #[inline]
-fn custom_hash_func(s: &str) -> usize {
-    s.chars().fold(0, |acc, c| ((acc + c as usize) * 17) % 256)
+fn custom_hash_func(s: &str) -> u8 {
+    s.chars()
+        .fold(0u8, |acc, c| acc.wrapping_add(c as u8).wrapping_mul(17))
 }
 
 #[cfg(test)]

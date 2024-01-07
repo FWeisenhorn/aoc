@@ -10,10 +10,10 @@ pub fn run() {
 fn part_a(input: &str) -> String {
     input
         .lines()
-        .map(calc_wins_per_line)
-        .map(|n| match n {
-            0 => 0,
-            x => 2u32.pow(u32::try_from(x).unwrap()) / 2,
+        .filter_map(|line| match u32::try_from(calc_wins_per_line(line)?) {
+            Ok(0) => Some(0),
+            Ok(n) => Some(2u32.pow(n) / 2),
+            _ => None,
         })
         .sum::<u32>()
         .to_string()
@@ -22,7 +22,7 @@ fn part_a(input: &str) -> String {
 fn part_b(input: &str) -> String {
     input
         .lines()
-        .map(calc_wins_per_line)
+        .filter_map(calc_wins_per_line)
         .fold(
             (0usize, VecDeque::<usize>::new()),
             |mut acc: (usize, VecDeque<usize>), x| {
@@ -41,18 +41,23 @@ fn part_b(input: &str) -> String {
         .to_string()
 }
 
-fn calc_wins_per_line(line: &str) -> usize {
-    let x = line.split_once(':').unwrap().1.split_once('|').unwrap();
+fn calc_wins_per_line(line: &str) -> Option<usize> {
+    line.split_once(':').and_then(|(_, numbers)| {
+        numbers.split_once('|').map(|(lhs, rhs)| {
+            let winning_numbers = lhs
+                .split_whitespace()
+                .filter_map(|x| x.parse::<u8>().ok())
+                .collect::<Vec<_>>();
 
-    let winning_numbers: Vec<u32> =
-        x.0.split_whitespace()
-            .map(|x| x.parse::<u32>().unwrap())
-            .collect();
+            let out = rhs
+                .split_whitespace()
+                .filter_map(|x| x.parse::<u8>().ok())
+                .filter(|x| winning_numbers.contains(x))
+                .count();
 
-    x.1.split_whitespace()
-        .map(|x| x.parse::<u32>().unwrap())
-        .filter(|x| winning_numbers.contains(x))
-        .count()
+            out
+        })
+    })
 }
 
 #[cfg(test)]
@@ -69,5 +74,15 @@ mod tests {
     #[test]
     fn test_b() {
         assert_eq!(part_b(_TEST), "30");
+    }
+
+    #[test]
+    fn result_a() {
+        assert_eq!(part_a(INPUT), "23235");
+    }
+
+    #[test]
+    fn result_b() {
+        assert_eq!(part_b(INPUT), "5920640");
     }
 }

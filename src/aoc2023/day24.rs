@@ -104,7 +104,7 @@ fn read_input(input: &str) -> Vec<Hailstone> {
 fn read_line(line: &str) -> Hailstone {
     let t: Vec<f64> = line
         .split(&[',', '@'])
-        .map(|s| s.trim().parse().unwrap())
+        .filter_map(|s| s.trim().parse::<f64>().ok())
         .collect();
     Hailstone {
         p: Vector3::from_column_slice(&t[..3]),

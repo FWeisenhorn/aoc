@@ -10,12 +10,12 @@ pub fn run() {
 fn part_a(input: &str) -> String {
     let trench_instr: Vec<(Direction, u32)> = input
         .lines()
-        .map(|line| {
+        .filter_map(|line| {
             let t: Vec<&str> = line.splitn(3, char::is_whitespace).collect();
-            (
-                Direction::try_from(t[0].chars().next().unwrap()).unwrap(),
-                t[1].parse().unwrap(),
-            )
+
+            Direction::try_from(t[0].chars().next()?)
+                .ok()
+                .zip(t[1].parse::<u32>().ok())
         })
         .collect();
 
@@ -27,8 +27,8 @@ fn part_a(input: &str) -> String {
 fn part_b(input: &str) -> String {
     let trench_instr: Vec<(Direction, u32)> = input
         .lines()
-        .map(|line| {
-            let (_, t) = line.split_once('#').unwrap();
+        .filter_map(|line| {
+            let (_, t) = line.split_once('#')?;
 
             let dir = match &t[t.len() - 2..t.len() - 1] {
                 "0" => Direction::Right,
@@ -38,9 +38,9 @@ fn part_b(input: &str) -> String {
                 _ => unreachable!(),
             };
 
-            let n = u32::from_str_radix(&t[0..t.len() - 2], 16).unwrap();
+            let n = u32::from_str_radix(&t[0..t.len() - 2], 16).ok();
 
-            (dir, n)
+            Some((dir, n?))
         })
         .collect();
 

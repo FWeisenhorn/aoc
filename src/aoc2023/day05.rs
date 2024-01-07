@@ -8,19 +8,15 @@ pub fn run() {
 }
 
 fn part_a(input: &str) -> String {
-    let input: Vec<&str> = input.lines().collect();
+    let data: Vec<&str> = input.lines().collect();
 
-    let seeds: Vec<u64> = input[0][7..]
+    let conv = read_conversion_tables(&data);
+
+    data[0][7..]
         .split_whitespace()
-        .filter_map(|x| x.parse().ok())
-        .collect();
-
-    let conv = read_conversion_tables(&input);
-
-    seeds
-        .iter()
+        .filter_map(|x| x.parse::<u64>().ok())
         .map(|s| {
-            conv.iter().fold(*s, |acc, x| {
+            conv.iter().fold(s, |acc, x| {
                 match x.iter().find(|[_, b, c]| *b <= acc && acc < *b + *c) {
                     Some([a, b, _]) => acc + a - b,
                     None => acc,
@@ -126,5 +122,15 @@ mod tests {
     #[test]
     fn test_b() {
         assert_eq!(part_b(_TEST), "46");
+    }
+
+    #[test]
+    fn result_a() {
+        assert_eq!(part_a(INPUT), "600279879");
+    }
+
+    #[test]
+    fn result_b() {
+        assert_eq!(part_b(INPUT), "20191102");
     }
 }

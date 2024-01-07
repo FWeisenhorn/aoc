@@ -29,10 +29,8 @@ fn part_b(input: &str) -> String {
 fn read_input<T: DeckType>(input: &str) -> Vec<(Hand<T>, usize)> {
     input
         .lines()
-        .map(|line| {
-            let x = line.split_at(5);
-            (Hand::new(x.0), x.1[1..].parse().unwrap())
-        })
+        .map(|line| line.split_at(5))
+        .filter_map(|(a, b)| b[1..].parse().map_or(None, |s| Some((Hand::new(a), s))))
         .collect()
 }
 
@@ -67,7 +65,7 @@ impl DeckType for StandardDeck {
         ]
         .iter()
         .position(|&t| t == x)
-        .map(|x| u8::try_from(x).unwrap())
+        .and_then(|x| u8::try_from(x).ok())
     }
 
     fn hand_ordering(occ: &HashMap<&u8, u8>) -> [u8; 2] {
@@ -90,7 +88,7 @@ impl DeckType for JokerDeck {
         ]
         .iter()
         .position(|&t| t == x)
-        .map(|x| u8::try_from(x).unwrap())
+        .and_then(|x| u8::try_from(x).ok())
     }
 
     fn hand_ordering(occ: &HashMap<&u8, u8>) -> [u8; 2] {
@@ -127,7 +125,7 @@ impl<T: DeckType> Ord for Hand<T> {
             .zip(other.values)
             .map(|(a, b)| a.cmp(&b))
             .find(|&x| x != Ordering::Equal)
-            .unwrap()
+            .unwrap_or(Ordering::Equal)
     }
 }
 
@@ -141,16 +139,15 @@ impl<T: DeckType> Hand<T> {
     fn new(s: &str) -> Self {
         assert_eq!(s.len(), 5);
 
-        let t = s
-            .chars()
-            .map(|c| T::card_value(c).unwrap())
-            .collect::<Vec<u8>>();
+        let t = s.chars().filter_map(T::card_value).collect::<Vec<u8>>();
+
+        assert_eq!(t.len(), 5);
 
         Self {
             values: occurrences::<T>(&t)
                 .into_iter()
                 .chain(t)
-                .collect::<Vec<u8>>()
+                .collect::<Vec<_>>()
                 .try_into()
                 .unwrap(),
             deck_type: PhantomData,

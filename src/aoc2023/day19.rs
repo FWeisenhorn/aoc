@@ -18,13 +18,11 @@ fn part_a(input: &str) -> String {
         .lines()
         .map(|line| {
             line.split(',')
-                .map(|s| {
+                .filter_map(|s| {
                     if s.ends_with('}') {
-                        s[s.find('=').unwrap() + 1..s.len() - 1]
-                            .parse::<u32>()
-                            .unwrap()
+                        s[s.find('=')? + 1..s.len() - 1].parse::<u32>().ok()
                     } else {
-                        s[s.find('=').unwrap() + 1..].parse::<u32>().unwrap()
+                        s[s.find('=')? + 1..].parse::<u32>().ok()
                     }
                 })
                 .collect::<Vec<u32>>()
@@ -99,20 +97,20 @@ struct Rule<'a> {
     go_to: &'a str,
 }
 
-fn rule_from_input(input: &str) -> Rule {
+fn rule_from_input(input: &str) -> Option<Rule> {
     // "a<2006:qkq"
     let (out_letter, t, out_op);
     if input.contains('<') {
-        (out_letter, t) = input.split_once('<').unwrap();
+        (out_letter, t) = input.split_once('<')?;
         out_op = '<';
     } else if input.contains('>') {
-        (out_letter, t) = input.split_once('>').unwrap();
+        (out_letter, t) = input.split_once('>')?;
         out_op = '>';
     } else {
         unreachable!()
     }
 
-    let (c, d) = t.split_once(':').unwrap();
+    let (c, d) = t.split_once(':')?;
 
     let a = match out_letter {
         "x" => 0,
@@ -122,12 +120,12 @@ fn rule_from_input(input: &str) -> Rule {
         _ => unreachable!(),
     };
 
-    Rule {
+    Some(Rule {
         comp_letter: a,
         comp_op: out_op,
-        comp_value: c.parse().unwrap(),
+        comp_value: c.parse().ok()?,
         go_to: d,
-    }
+    })
 }
 
 fn apply_rule<'a>(val: &[u32; 4], rule: &'a Rule) -> Option<&'a str> {
@@ -193,22 +191,26 @@ struct Workflow<'a> {
     go_to_end: &'a str,
 }
 
-fn workflow_from_string(input: &str) -> Workflow {
+fn workflow_from_string(input: &str) -> Option<Workflow> {
     // "a<2006:qkq,m>2090:A,rfg"
     let n = input.split(',').count();
-    let k: Vec<Rule> = input.split(',').take(n - 1).map(rule_from_input).collect();
-    Workflow {
+    let k: Vec<Rule> = input
+        .split(',')
+        .take(n - 1)
+        .filter_map(rule_from_input)
+        .collect();
+    Some(Workflow {
         rules: k,
-        go_to_end: input.split(',').last().unwrap(),
-    }
+        go_to_end: input.split(',').last()?,
+    })
 }
 
 fn workflows_from_input(input: &str) -> HashMap<&str, Workflow> {
     input
         .lines()
-        .map(|line| {
-            let (a, b) = line.split_once('{').unwrap();
-            (a, workflow_from_string(&b[0..b.len() - 1]))
+        .filter_map(|line| {
+            let (a, b) = line.split_once('{')?;
+            Some((a, workflow_from_string(&b[0..b.len() - 1])?))
         })
         .collect()
 }
